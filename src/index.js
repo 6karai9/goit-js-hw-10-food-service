@@ -1,33 +1,34 @@
-import templateMenu from "./template/menu.hbs";
-import menuObject from "./menu.json";
-import './styles.css';
-const refs = {
-    menu: document.querySelector('.js-menu'),
-    themeSwitch: document.querySelector('#theme-switch-toggle'),
-    body:document.querySelector('body')
-}
-const markUp = menuObject.map((element) => templateMenu(element)).join('');
-refs.menu.insertAdjacentHTML('beforeend', markUp);
- const Theme = {
+/* создание списка используя шаблонизатор */
+import dishMenuTpl from './templates/dish-menu.hbs';
+import dishMenu from './dish-menu.json';
+import './styles/styles.css';
+
+const menuListEl = document.querySelector('.js-menu');
+menuListEl.insertAdjacentHTML('beforeend', dishMenuTpl(dishMenu));
+
+/* функционал изменения и сохранения темы */
+const Theme = {
   LIGHT: 'light-theme',
   DARK: 'dark-theme',
+  body: document.querySelector('body'),
+  themeSwitch: document.querySelector('#theme-switch-toggle'),
 };
-function changeTheme() {
-    refs.body.classList.toggle(Theme.LIGHT);
-    refs.body.classList.toggle(Theme.DARK);
-    localStorage.setItem('theme', refs.body.classList);
+let themeSet = false;
+
+window.addEventListener('DOMContentLoaded', localStorageInsert);
+Theme.themeSwitch.addEventListener('change', onChangeTheme);
+
+function onChangeTheme(e) {
+  e.currentTarget.checked
+    ? Theme.body.classList.replace(Theme.LIGHT, Theme.DARK)
+    : Theme.body.classList.replace(Theme.DARK, Theme.LIGHT);
+  localStorage.setItem('theme-setting', JSON.stringify(Theme.themeSwitch.checked));
+  themeSet = JSON.parse(localStorage.getItem('theme-setting'));
 }
 
-if (localStorage.getItem('theme') === null) {
-    refs.body.classList.add(Theme.LIGHT);
-}
-    else {
-    refs.body.classList.add(localStorage.getItem('theme'));
-}
-if (localStorage.getItem('theme') === Theme.DARK) {
-    refs.themeSwitch.setAttribute("checked", "checked")
-}
-refs.themeSwitch.addEventListener('change', changeTheme);
+function localStorageInsert() {
+  themeSet = JSON.parse(localStorage.getItem('theme-setting'));
+  Theme.themeSwitch.checked = themeSet;
 
-
-
+  themeSet ? Theme.body.classList.add(Theme.DARK) : Theme.body.classList.add(Theme.LIGHT);
+}
